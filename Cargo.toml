@@ -1,0 +1,15 @@
+[package]
+name = "design_pattern_practice"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+  "command",
+  "state",
+  "strategy",
+  "template_method",
+  ]
+# default-members = [""]
+
+[dependencies]

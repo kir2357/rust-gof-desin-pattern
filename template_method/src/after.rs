@@ -1,0 +1,105 @@
+// 1. AbstractClass(抽象クラス)
+// テンプレートメソッドを実装します。また、テンプレートメソッドで使用するメソッドを抽象メソッドで定義します。
+trait AbstractFactory<'a> {
+    type ProdX: dyn ProductX;
+    type ProdY: dyn ProductY;
+    fn create_product_x(&self) -> Box<dyn Self::ProdX + 'a>;
+    fn create_product_y(&self) -> Box<dyn Self::ProdY + 'a>;
+}
+
+// 2. ConcreteClass(具象クラス)
+// 「AbstractClass」で定義した抽象メソッドを実装します。ここで実装した抽象メソッドは、「AbstractClass」のテンプレートメソッドで使用されます。
+struct ConcreteFactoryA;
+impl<'a> AbstractFactory<'a> for ConcreteFactoryA {
+    fn create_product_x(&self) -> Box<dyn ProductX + 'a>
+    {
+        Box::new(ConcreteProductX::new("FactoryA".to_string())) as Box<dyn ProductX>
+    }
+
+    fn create_product_y(&self) -> Box<dyn ProductY + 'a>
+    {
+        Box::new(ConcreteProductY::new("FactoryA".to_string())) as Box<dyn ProductY>
+    }
+}
+
+
+struct ConcreteFactoryB;
+impl<'a> AbstractFactory<'a> for ConcreteFactoryB {
+    fn create_product_x(&self) -> Box<dyn ProductX + 'a>
+    {
+        Box::new(ConcreteProductX::new("FactoryB".to_string())) as Box<dyn ProductX>
+    }
+
+    fn create_product_y(&self) -> Box<dyn ProductY + 'a>
+    {
+        Box::new(ConcreteProductY::new("FactoryB".to_string())) as Box<dyn ProductY>
+    }
+}
+
+trait ProductX {
+    fn get_value(&self) -> String;
+}
+
+
+trait ProductY {
+    fn get_value(&self) -> String;
+}
+
+struct ConcreteProductX(String);
+impl ConcreteProductX {
+    fn new(msg: String) -> ConcreteProductX {
+        ConcreteProductX(msg + &" ProductX".to_string())
+    }
+}
+
+
+impl ProductX for ConcreteProductX {
+    fn get_value(&self) -> String
+    {
+        self.0.clone()
+    }
+}
+
+
+struct ConcreteProductY(String);
+impl ConcreteProductY {
+    fn new(msg: String) -> ConcreteProductY {
+        ConcreteProductY(msg + &" ProductY".to_string())
+    }
+}
+
+
+impl ProductY for ConcreteProductY {
+    fn get_value(&self) -> String
+    {
+        self.0.clone()
+    }
+}
+
+enum FactoryID {
+    A,
+    B,
+}
+
+fn create_factory<'a>(id: FactoryID) -> Box<dyn AbstractFactory<'a> + 'a>
+{
+    match id {
+        FactoryID::A => Box::new(ConcreteFactoryA(ConcreteProductX,ConcreteProductY)),
+        FactoryID::B => Box::new(ConcreteFactoryB(ConcreteProductX,ConcreteProductY)),
+    }
+}
+
+pub fn main()
+{
+    let factory_a = create_factory(FactoryID::A);
+    let a_x = factory_a.create_product_x();
+    let a_y = factory_a.create_product_y();
+    println!("{}", a_x.get_value());
+    println!("{}", a_y.get_value());
+
+    let factory_b = create_factory(FactoryID::B);
+    let b_x = factory_b.create_product_x();
+    let b_y = factory_b.create_product_y();
+    println!("{}", b_x.get_value());
+    println!("{}", b_y.get_value());
+}
